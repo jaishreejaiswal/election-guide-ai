@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Election Guide AI — Interactive Voter Assistant & Timeline</title>
+  <meta name="description" content="An interactive, accessible civic assistant designed to help voters understand election processes, timelines, candidates, voter ID rules, and voting steps.">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body data-theme="light" data-contrast="normal">
+
+  <!-- Top Civic Alert Banner -->
+  <aside class="top-banner" role="complementary" aria-label="Official Civic Notice">
+    <span>🗳️ <strong>Democracy in Action:</strong> Exercise your constitutional right. Check your registration status and prepare your voter ID early.</span>
+    <a href="#eligibility" id="bannerCtaLink">Check My Readiness &rarr;</a>
+  </aside>
+
+  <!-- Site Header -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <div class="brand-container">
+        <div class="brand-logo-icon" aria-hidden="true">🗳️</div>
+        <div>
+          <h1 class="brand-title">
+            Election Guide AI
+            <span class="brand-badge">Civic Guide</span>
+          </h1>
+          <p class="brand-subtitle">Interactive Voting Roadmap & Non-Partisan AI Assistant</p>
+        </div>
+      </div>
+
+      <!-- Controls: Jurisdiction Selector & Accessibility Toolbar -->
+      <div class="header-controls">
+        <!-- Jurisdiction Switcher -->
+        <div class="jurisdiction-select-wrapper" title="Select your voting jurisdiction">
+          <span id="jurFlag">🇺🇸</span>
+          <label for="jurisdictionSelect" class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">Voting Region</label>
+          <select id="jurisdictionSelect" class="jurisdiction-select" aria-label="Select Voting Region">
+            <option value="us">United States (Federal & State)</option>
+            <option value="india">India (Lok Sabha & Assemblies)</option>
+            <option value="uk">United Kingdom (General & Local)</option>
+          </select>
+        </div>
+
+        <!-- Accessibility Toolbar (WCAG AAA) -->
+        <div class="accessibility-toolbar" role="toolbar" aria-label="Accessibility settings">
+          <button id="btnFontDec" class="a11y-btn" title="Decrease font size" aria-label="Decrease text size">A-</button>
+          <button id="btnFontReset" class="a11y-btn" title="Reset font size" aria-label="Reset text size">A</button>
+          <button id="btnFontInc" class="a11y-btn" title="Increase font size" aria-label="Increase text size">A+</button>
+          <button id="btnHighContrast" class="a11y-btn" title="Toggle High Contrast Mode (WCAG AAA)" aria-label="High contrast mode">👁️ Contrast</button>
+          <button id="btnThemeToggle" class="a11y-btn" title="Toggle Dark/Light Mode" aria-label="Toggle dark mode">🌙</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section & Search -->
+  <section class="hero-section" aria-labelledby="hero-title">
+    <div class="hero-inner">
+      <div class="hero-pill">
+        <span>✨ Powered by Civic Intelligence</span>
+        <span>•</span>
+        <span id="heroJurLabel">United States General Election</span>
+      </div>
+
+      <h2 id="hero-title" class="hero-title">
+        Your Step-by-Step Companion to <br>
+        <span class="highlight-gradient">Informed, Confident Voting</span>
+      </h2>
+
+      <p class="hero-description">
+        Demystifying voter registration, candidate manifestos, polling booth procedures, and your legal voting rights in one simple, accessible experience.
+      </p>
+
+      <!-- Instant Universal Search & Ask AI -->
+      <div class="search-box-container">
+        <form id="globalSearchForm" class="search-input-wrapper" role="search" aria-label="Search voting guide or ask AI">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <label for="globalSearchInput" class="sr-only">Ask any election, voting, or registration question</label>
+          <input type="text" id="globalSearchInput" class="search-input" placeholder="Ask anything: 'How to apply for voter ID?', 'NRI voting rules', 'Check voter list'..." autocomplete="off">
+          <button type="button" id="searchClearBtn" class="search-clear-btn" aria-label="Clear search">✕</button>
+          <button type="submit" id="searchAskAiBtn" class="search-ask-btn" title="Ask Election AI">
+            <span>Ask AI</span>
+            <span aria-hidden="true">💬</span>
+          </button>
+        </form>
+        <!-- Live Search Results Dropdown -->
+        <div id="searchResultsDropdown" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-xl); z-index: 30; max-height: 320px; overflow-y: auto; text-align: left; padding: 0.5rem;"></div>
+      </div>
+
+      <!-- Quick Civic Stats Row -->
+      <div class="quick-stats-row">
+        <div class="stat-item">
+          <span class="stat-icon">📅</span>
+          <span>Reg. Deadline: <strong id="statRegDeadline">15-30 Days Prior</strong></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">⏰</span>
+          <span>Polling Hours: <strong id="statPollHours">6:00 AM – 7:00 PM</strong></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">🪪</span>
+          <span>Photo ID: <strong id="statIdPolicy">State Regulated / 12 Approved</strong></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">📞</span>
+          <span>Helpline: <strong id="statHelpline">1-866-OUR-VOTE</strong></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="main-content" id="mainContent">
+
+    <!-- ====================================================================
+         SECTION 1: Interactive Step-by-Step Flow (Visual Timeline)
+         ==================================================================== -->
+    <section class="timeline-section" aria-labelledby="timeline-heading">
+      <div class="section-header">
+        <div class="section-tag">Interactive Stage-Based Roadmap</div>
+        <h3 id="timeline-heading" class="section-title">The 4 Phases of the Election Cycle</h3>
+        <p class="section-subtitle">Click through each stage to explore critical deadlines, verified requirements, checklists, and FAQs.</p>
+      </div>
+
+      <!-- Stage Selector Navigation Bar -->
+      <nav class="stage-nav-bar" role="tablist" aria-label="Election Stages">
+        <button class="stage-nav-btn active" role="tab" id="tab-stage-0" aria-selected="true" aria-controls="panel-stage-0" data-stage="0">
+          <span class="stage-step-num"><span>Phase 1</span> • 📝</span>
+          <span class="stage-step-title">Voter Registration</span>
+        </button>
+
+        <button class="stage-nav-btn" role="tab" id="tab-stage-1" aria-selected="false" aria-controls="panel-stage-1" data-stage="1">
+          <span class="stage-step-num"><span>Phase 2</span> • 🔍</span>
+          <span class="stage-step-title">Candidates & Manifestos</span>
+        </button>
+
+        <button class="stage-nav-btn" role="tab" id="tab-stage-2" aria-selected="false" aria-controls="panel-stage-2" data-stage="2">
+          <span class="stage-step-num"><span>Phase 3</span> • 🗳️</span>
+          <span class="stage-step-title">Polling Day Steps</span>
+        </button>
+
+        <button class="stage-nav-btn" role="tab" id="tab-stage-3" aria-selected="false" aria-controls="panel-stage-3" data-stage="3">
+          <span class="stage-step-num"><span>Phase 4</span> • 📊</span>
+          <span class="stage-step-title">Results & Certification</span>
+        </button>
+      </nav>
+
+      <!-- Dynamic Stage Content Container -->
+      <div id="stageContentWrapper" aria-live="polite">
+        <!-- Rendered by app.js based on selected stage & jurisdiction -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SECTION 2: Interactive Eligibility & Personalized Checklist Tool
+         ==================================================================== -->
+    <section id="eligibility" class="eligibility-section" aria-labelledby="eligibility-heading">
+      <div class="section-header">
+        <div class="section-tag">Interactive Voter Assessment</div>
+        <h3 id="eligibility-heading" class="section-title">Are You Ready to Vote?</h3>
+        <p class="section-subtitle">Answer 5 quick questions to calculate your Election Day Readiness Score and receive a personalized action plan.</p>
+      </div>
+
+      <div class="eligibility-container">
+        <!-- Interactive Questions Column -->
+        <div class="eligibility-questions">
+          <!-- Question 1: Age -->
+          <div class="question-card" data-q="age">
+            <h4 class="question-title"><span>1.</span> Are you 18 or will you be 18 on or before Election Day?</h4>
+            <div class="options-group">
+              <label class="option-chip selected" data-value="yes">
+                <input type="radio" name="elig_age" value="yes" checked>
+                <span>Yes, 18 or older</span>
+              </label>
+              <label class="option-chip" data-value="soon">
+                <input type="radio" name="elig_age" value="soon">
+                <span>Turning 18 soon</span>
+              </label>
+              <label class="option-chip" data-value="no">
+                <input type="radio" name="elig_age" value="no">
+                <span>Under 18</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 2: Registration -->
+          <div class="question-card" data-q="registration">
+            <h4 class="question-title"><span>2.</span> What is your current voter registration status?</h4>
+            <div class="options-group">
+              <label class="option-chip selected" data-value="registered">
+                <input type="radio" name="elig_reg" value="registered" checked>
+                <span>Registered at current address</span>
+              </label>
+              <label class="option-chip" data-value="moved">
+                <input type="radio" name="elig_reg" value="moved">
+                <span>Moved recently</span>
+              </label>
+              <label class="option-chip" data-value="not_registered">
+                <input type="radio" name="elig_reg" value="not_registered">
+                <span>Not registered / Not sure</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 3: Photo ID / Docs -->
+          <div class="question-card" data-q="id">
+            <h4 class="question-title"><span>3.</span> Do you have an accepted government ID on hand?</h4>
+            <div class="options-group">
+              <label class="option-chip selected" data-value="have_id">
+                <input type="radio" name="elig_id" value="have_id" checked>
+                <span>Yes, valid photo ID</span>
+              </label>
+              <label class="option-chip" data-value="alt_docs">
+                <input type="radio" name="elig_id" value="alt_docs">
+                <span>Only utility bill / student ID</span>
+              </label>
+              <label class="option-chip" data-value="no_id">
+                <input type="radio" name="elig_id" value="no_id">
+                <span>No ID currently</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 4: Polling Station -->
+          <div class="question-card" data-q="polling">
+            <h4 class="question-title"><span>4.</span> Do you know your designated polling station location?</h4>
+            <div class="options-group">
+              <label class="option-chip selected" data-value="know_booth">
+                <input type="radio" name="elig_poll" value="know_booth" checked>
+                <span>Yes, verified location</span>
+              </label>
+              <label class="option-chip" data-value="need_lookup">
+                <input type="radio" name="elig_poll" value="need_lookup">
+                <span>Need to find it</span>
+              </label>
+              <label class="option-chip" data-value="mail_in">
+                <input type="radio" name="elig_poll" value="mail_in">
+                <span>Voting by mail / Absentee</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question 5: Sample Ballot & Candidates -->
+          <div class="question-card" data-q="ballot">
+            <h4 class="question-title"><span>5.</span> Have you reviewed your sample ballot and candidate manifestos?</h4>
+            <div class="options-group">
+              <label class="option-chip selected" data-value="researched">
+                <input type="radio" name="elig_ballot" value="researched" checked>
+                <span>Researched & ready</span>
+              </label>
+              <label class="option-chip" data-value="in_progress">
+                <input type="radio" name="elig_ballot" value="in_progress">
+                <span>Browsing candidates now</span>
+              </label>
+              <label class="option-chip" data-value="not_yet">
+                <input type="radio" name="elig_ballot" value="not_yet">
+                <span>Not looked yet</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Results & Gauge Column -->
+        <div class="readiness-report-card">
+          <div>
+            <div class="gauge-wrapper">
+              <div class="readiness-score-circle" id="scoreCircle" style="--score-pct: 100;">
+                <div class="readiness-score-inner">
+                  <span class="score-number" id="scoreValue">100%</span>
+                  <span class="score-label">Readiness</span>
+                </div>
+              </div>
+              <h4 class="readiness-status-heading" id="readinessHeading">You are fully prepared to vote!</h4>
+              <p class="readiness-status-desc" id="readinessSubtext">You have your registration, ID, and location confirmed.</p>
+            </div>
+
+            <!-- Tailored Next Steps -->
+            <div>
+              <strong style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Your Action Plan:</strong>
+              <div class="action-steps-list" id="actionStepsContainer">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <div class="eligibility-actions">
+            <button id="btnPrintChecklist" class="btn-primary" style="flex: 1;">
+              <span>📋 Save My Voter Checklist</span>
+            </button>
+            <a id="btnOfficialPortal" href="https://www.usa.gov/voting" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="flex: 1; justify-content: center;">
+              <span>Official Portal ↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SECTION 3: Candidate & Manifesto Comparison Guide
+         ==================================================================== -->
+    <section class="manifesto-section" aria-labelledby="manifesto-heading">
+      <div class="section-header">
+        <div class="section-tag">Objective Civic Analysis</div>
+        <h3 id="manifesto-heading" class="section-title">How to Scrutinize Candidates & Manifestos</h3>
+        <p class="section-subtitle">Avoid sensationalism by evaluating political platforms across 5 crucial pillars.</p>
+      </div>
+
+      <div class="manifesto-card">
+        <p style="font-size: 0.95rem; color: var(--text-secondary); max-width: 820px;">
+          An election manifesto is a formal contract between a candidate and the public. Before casting your vote, benchmark each candidate's promises against these factual standards:
+        </p>
+
+        <div class="manifesto-rubric-grid">
+          <div class="rubric-box">
+            <h4 class="rubric-header"><span>🏥</span> Healthcare & Wellbeing</h4>
+            <ul class="rubric-list">
+              <li>Specific plans to lower out-of-pocket costs and drug prices.</li>
+              <li>Investment in local clinics, emergency response, and mental health.</li>
+            </ul>
+          </div>
+
+          <div class="rubric-box">
+            <h4 class="rubric-header"><span>💼</span> Economy & Cost of Living</h4>
+            <ul class="rubric-list">
+              <li>Concrete measures for wage growth, inflation mitigation, and local jobs.</li>
+              <li>Clear budgetary proposals indicating where funding originates.</li>
+            </ul>
+          </div>
+
+          <div class="rubric-box">
+            <h4 class="rubric-header"><span>🎓</span> Education & Youth Pathways</h4>
+            <ul class="rubric-list">
+              <li>Public school funding, teacher retention, and technical apprenticeships.</li>
+              <li>Relief strategies for vocational training and higher education costs.</li>
+            </ul>
+          </div>
+
+          <div class="rubric-box">
+            <h4 class="rubric-header"><span>🌱</span> Energy & Infrastructure</h4>
+            <ul class="rubric-list">
+              <li>Modernizing power grids, clean water systems, and local transit.</li>
+              <li>Actionable timelines for carbon reduction and climate resilience.</li>
+            </ul>
+          </div>
+
+          <div class="rubric-box">
+            <h4 class="rubric-header"><span>⚖️</span> Rule of Law & Civil Rights</h4>
+            <ul class="rubric-list">
+              <li>Commitment to protecting fair voting access and judicial independence.</li>
+              <li>Public disclosure of campaign donors and criminal background records.</li>
+            </ul>
+          </div>
+
+          <div class="rubric-box" style="background: var(--civic-primary-subtle); border-color: var(--civic-primary-ring);">
+            <h4 class="rubric-header" style="color: var(--civic-primary);"><span>💡</span> Non-Partisan Watchdogs</h4>
+            <ul class="rubric-list" style="color: var(--text-primary);">
+              <li><strong>US:</strong> Vote411.org (League of Women Voters), Ballotpedia, FactCheck.org.</li>
+              <li><strong>India:</strong> ADR (myneta.info), ECI KYC App, PIB Fact Check.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SECTION 4: Voter Rights & Legal Protections Center
+         ==================================================================== -->
+    <section class="rights-section" aria-labelledby="rights-heading">
+      <div class="rights-card">
+        <div class="rights-header">
+          <div class="rights-icon" aria-hidden="true">🛡️</div>
+          <div>
+            <h3 id="rights-heading" class="rights-title">Your Inviolable Voting Rights & Protections</h3>
+            <p class="rights-subtitle">Never leave a polling booth without casting your vote. Know your legal entitlements.</p>
+          </div>
+        </div>
+
+        <div class="rights-grid">
+          <div class="rights-point">
+            <h4>1. In Line by Closing Time</h4>
+            <p>If you are in line before poll closing time (e.g. 7 PM or 8 PM), election laws state officials <strong>must allow you to vote</strong>. Stay in line!</p>
+          </div>
+
+          <div class="rights-point">
+            <h4>2. Provisional / Tendered Ballot</h4>
+            <p>If poll workers cannot find your name, you have the statutory right to cast a <strong>Provisional Ballot</strong> (US HAVA Sec 302) or <strong>Tendered Vote</strong> (India Rule 49P).</p>
+          </div>
+
+          <div class="rights-point">
+            <h4>3. Absolute Ballot Secrecy</h4>
+            <p>No election worker, employer, or family member can view your vote. Campaigning within the designated exclusion zone (usually 100 feet) is illegal.</p>
+          </div>
+
+          <div class="rights-point">
+            <h4>4. Disability & Language Assistance</h4>
+            <p>You have the legal right to receive assistance from a person of your choice (other than your employer or union boss), or use accessible audio/tactile machines.</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <span style="font-size: 0.9rem; color: #cbd5e1;">Experiencing voter intimidation or need instant legal guidance?</span>
+          <button id="btnAskRightsAi" class="btn-primary" style="background: #ffffff; color: #0f172a;">
+            <span>Ask Election AI About Your Rights &rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================================================================
+       CONVERSATIONAL AI ASSISTANT: Floating Trigger & Slide-over Drawer
+       ==================================================================== -->
+  <!-- Floating Button -->
+  <button id="aiDrawerOpenBtn" class="ai-floating-trigger" aria-label="Open Election AI Assistant" aria-haspopup="dialog">
+    <div class="ai-trigger-pulse" aria-hidden="true"></div>
+    <span style="font-size: 1.2rem;">💬</span>
+    <span class="trigger-label">Chat with Election AI</span>
+  </button>
+
+  <!-- Slide-over Drawer Backdrop -->
+  <div id="aiDrawerBackdrop" class="ai-drawer-backdrop" aria-hidden="true"></div>
+
+  <!-- Slide-over Drawer Modal -->
+  <aside id="aiDrawer" class="ai-drawer" role="dialog" aria-modal="true" aria-labelledby="aiDrawerTitle" aria-hidden="true">
+    <!-- Header -->
+    <header class="ai-drawer-header">
+      <div class="ai-drawer-title-group">
+        <div class="ai-avatar" aria-hidden="true">🤖</div>
+        <div>
+          <h3 id="aiDrawerTitle" class="ai-name">Election Guide AI</h3>
+          <span class="ai-status-indicator" id="aiStatusLabel">Knowledge Engine Ready</span>
+        </div>
+      </div>
+
+      <div class="ai-drawer-tools">
+        <!-- Settings (Gemini API Key) -->
+        <button id="btnToggleAiConfig" class="ai-tool-btn" title="AI Settings / API Key" aria-label="Configure Gemini API Key">⚙️</button>
+        <!-- Clear Chat -->
+        <button id="btnClearChat" class="ai-tool-btn" title="Clear conversation" aria-label="Clear chat history">🗑️</button>
+        <!-- Close Drawer -->
+        <button id="aiDrawerCloseBtn" class="ai-tool-btn" title="Close assistant" aria-label="Close assistant">✕</button>
+      </div>
+    </header>
+
+    <!-- Optional Gemini API Configuration Sub-panel -->
+    <div id="geminiConfigPanel" class="gemini-config-panel">
+      <strong>✨ Gemini API Integration (Optional)</strong>
+      <p style="margin: 0.25rem 0; color: var(--text-secondary);">
+        By default, the assistant runs on our instant offline civic knowledge engine. To enable live multimodal Google Gemini reasoning, paste your Gemini API key below:
+      </p>
+      <div class="config-input-group">
+        <input type="password" id="geminiApiKeyInput" class="config-key-input" placeholder="AIzaSy..." autocomplete="off">
+        <button id="btnSaveApiKey" class="btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Save</button>
+      </div>
+      <div style="margin-top: 0.4rem; display: flex; justify-content: space-between; align-items: center;">
+        <span id="apiKeyStatus" style="color: var(--text-muted);">Running in built-in offline engine mode</span>
+        <button id="btnRemoveApiKey" style="font-size: 0.75rem; color: var(--danger-color); text-decoration: underline; display: none;">Remove Key</button>
+      </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="aiMessagesContainer" class="ai-messages-container" role="log" aria-live="polite">
+      <!-- Welcome Message -->
+      <div class="message-bubble assistant">
+        <div class="message-sender-meta">
+          <span>Election Guide AI</span>
+          <span>•</span>
+          <span id="welcomeTime">Just now</span>
+        </div>
+        <div class="message-body">
+          <h3>👋 Welcome to Election Guide AI!</h3>
+          <p>I am your non-partisan voting assistant. I can answer questions about:</p>
+          <ul>
+            <li><strong>Acceptable Voter IDs</strong> and alternative documentation</li>
+            <li><strong>Locating your assigned polling booth</strong> and operating hours</li>
+            <li><strong>Voter registration deadlines</strong> & address updates</li>
+            <li><strong>Your rights if your name is missing</strong> or challenged</li>
+            <li><strong>How to vote using EVMs / paper ballots</strong></li>
+          </ul>
+          <p style="margin-top: 0.5rem;">Click a prompt chip below or type your question to begin!</p>
+        </div>
+        <div class="message-actions">
+          <button class="action-icon-btn btn-speak" data-text="Welcome to Election Guide AI! I am your non-partisan voting assistant. Ask me anything about voter registration, acceptable IDs, polling booths, and voter rights.">
+            <span>🔊 Read Aloud</span>
+          </button>
+          <button class="action-icon-btn btn-copy" data-text="Welcome to Election Guide AI!">
+            <span>📋 Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Prompt Chips Carousel -->
+    <div class="quick-chips-wrapper">
+      <div class="quick-chips-header">Quick Questions:</div>
+      <div class="quick-chips-scroll" id="quickChipsScroll">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Chat Input Bar -->
+    <div class="ai-input-bar">
+      <form id="aiChatForm" class="ai-input-container">
+        <label for="aiUserInput" class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">Type your question</label>
+        <textarea id="aiUserInput" class="ai-textarea" rows="1" placeholder="Ask about IDs, polling booth, registration..." required></textarea>
+        <button type="submit" id="aiSendBtn" class="ai-send-btn" title="Send message" aria-label="Send message">➤</button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- Site Footer -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <h4 class="footer-brand-title">🗳️ Election Guide AI</h4>
+          <p class="footer-brand-desc">
+            A non-partisan, open civic technology initiative dedicated to elevating voter awareness, reducing ballot confusion, and strengthening democratic participation across all communities.
+          </p>
+        </div>
+
+        <div class="footer-links-group">
+          <div class="footer-col">
+            <h4>Official US Portals</h4>
+            <ul>
+              <li><a href="https://vote.gov" target="_blank" rel="noopener noreferrer">Vote.gov (Official Federal Portal)</a></li>
+              <li><a href="https://www.usa.gov/voting" target="_blank" rel="noopener noreferrer">USA.gov/voting</a></li>
+              <li><a href="https://www.eac.gov" target="_blank" rel="noopener noreferrer">U.S. EAC</a></li>
+              <li><a href="https://866ourvote.org" target="_blank" rel="noopener noreferrer">866-OUR-VOTE</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Official UK Portals</h4>
+            <ul>
+              <li><a href="https://www.gov.uk/register-to-vote" target="_blank" rel="noopener noreferrer">gov.uk/register-to-vote</a></li>
+              <li><a href="https://www.electoralcommission.org.uk" target="_blank" rel="noopener noreferrer">The Electoral Commission</a></li>
+              <li><a href="https://whocanivotefor.co.uk" target="_blank" rel="noopener noreferrer">Who Can I Vote For?</a></li>
+              <li><a href="https://www.gov.uk/apply-for-photo-id-voter-authority-certificate" target="_blank" rel="noopener noreferrer">Free Voter Authority ID</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Official India Portals</h4>
+            <ul>
+              <li><a href="https://voters.eci.gov.in" target="_blank" rel="noopener noreferrer">voters.eci.gov.in (ECI)</a></li>
+              <li><a href="https://eci.gov.in" target="_blank" rel="noopener noreferrer">Election Commission of India</a></li>
+              <li><a href="https://results.eci.gov.in" target="_blank" rel="noopener noreferrer">ECI Official Results</a></li>
+              <li><a href="tel:1950">Voter Helpline (1950)</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Civic Resources</h4>
+            <ul>
+              <li><a href="https://www.idea.int" target="_blank" rel="noopener noreferrer">International IDEA</a></li>
+              <li><a href="https://www.ballotpedia.org" target="_blank" rel="noopener noreferrer">Ballotpedia</a></li>
+              <li><a href="https://www.vote411.org" target="_blank" rel="noopener noreferrer">Vote411.org</a></li>
+              <li><a href="https://myneta.info" target="_blank" rel="noopener noreferrer">ADR MyNeta</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          <span>© 2026 Election Guide AI. Built for the public interest. Completely non-partisan.</span>
+        </div>
+        <div>
+          <span>Disclaimer: This tool provides general civic guidance. Always verify local jurisdiction-specific deadlines with your local electoral board.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="election-data.js"></script>
+  <script src="ai-engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
