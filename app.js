@@ -185,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderCurrentStage();
     calculateEligibility();
+    renderQuickChips();
   }
 
   // -------------------------------------------------------------------------
@@ -501,7 +502,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // QUICK PROMPTS CHIPS & AI DRAWER
   // -------------------------------------------------------------------------
   function renderQuickChips() {
-    elements.quickChipsScroll.innerHTML = ELECTION_DATA.quickPrompts.map(p => `
+    const jurKey = state.currentJurisdiction || 'india';
+    const prompts = (ELECTION_DATA.quickPromptsByJurisdiction && ELECTION_DATA.quickPromptsByJurisdiction[jurKey])
+      || ELECTION_DATA.quickPrompts;
+
+    elements.quickChipsScroll.innerHTML = prompts.map(p => `
       <button class="chip-btn" data-query="${escapeHtml(p.text)}">
         <span>${escapeHtml(p.text)}</span>
       </button>

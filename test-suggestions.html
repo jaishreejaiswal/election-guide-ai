@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Deep Recursive Suggestions Test Suite</title>
+</head>
+<body>
+  <div id="results"></div>
+  <script src="election-data.js"></script>
+  <script src="ai-engine.js"></script>
+  <script>
+    const engine = new ElectionAIEngine(ELECTION_DATA);
+    const jurisdictions = ['india', 'us', 'uk'];
+
+    const seedQueries = [
+      'how to create a voter id',
+      'how to register to vote',
+      'what id do i need to vote',
+      'how to check my name on the electoral roll',
+      'how do i check if i am registered to vote',
+      'rules for nri voting',
+      'what to do if i shifted address',
+      'lost my voter id',
+      'can i take my phone into the booth',
+      'can i wear political clothes',
+      'what is a provisional ballot',
+      'what are my voter rights',
+      'where do i vote and what time',
+      'how does the evm machine work',
+      'what is nota',
+      'can i vote online',
+      'can prisoners vote',
+      'how does postal ballot work',
+      'time off work to vote',
+      'how to evaluate candidates',
+      'what is an epic id',
+      'how are election results counted',
+      'voting facilities for senior citizens and pwd',
+      'how to vote step by step',
+      'minimum voting age',
+      'rules for college students voting',
+      'can i register on election day',
+      'what documents can i use as address proof',
+      'what documents can i use as age proof',
+      'how to download e-epic',
+      'what is a voter authority certificate',
+      'can i vote by proxy in the uk',
+      'how does first past the post work in the uk',
+      'rules for armed forces voters',
+      'what are the registration deadlines',
+      'how do i track my mail ballot',
+      'can i ask a poll worker for help'
+    ];
+
+    const visitedQueries = new Set();
+    const queue = [];
+
+    jurisdictions.forEach(jur => {
+      // Add quick prompts
+      if (ELECTION_DATA.quickPromptsByJurisdiction[jur]) {
+        ELECTION_DATA.quickPromptsByJurisdiction[jur].forEach(p => {
+          queue.push({ jur, query: p.text, depth: 0 });
+        });
+      }
+      seedQueries.forEach(sq => {
+        queue.push({ jur, query: sq, depth: 0 });
+      });
+    });
+
+    const auditResults = [];
+    let failures = 0;
+
+    while (queue.length > 0) {
+      const item = queue.shift();
+      const normKey = `${item.jur}:::${item.query.toLowerCase().trim()}`;
+      if (visitedQueries.has(normKey)) continue;
+      visitedQueries.add(normKey);
+
+      engine.setJurisdiction(item.jur);
+      const res = engine.queryLocalKnowledgeBase(item.query);
+      const isSynthesizer = res.sources && res.sources.some(s => s.includes('Statutory Election Rules') || s.includes('Official Electoral Guidelines'));
+      
+      let leak = null;
+      const lowerContent = res.content.toLowerCase();
+      if (item.jur === 'india') {
+        if (/\bhava\b/.test(lowerContent) && 
+            !lowerContent.includes('u.s. legal concept') && !lowerContent.includes('u.s. mechanism')) {
+          leak = 'Possible US leak in India response';
+        }
+      } else if (item.jur === 'us') {
+        if ((/\beci\b/.test(lowerContent) || lowerContent.includes('form 6') || /\bvvpat\b/.test(lowerContent) || lowerContent.includes('gov.uk')) && 
+            !lowerContent.includes('foreign') && !lowerContent.includes('india') && !lowerContent.includes('united kingdom')) {
+          leak = 'Possible India/UK leak in US response';
+        }
+      } else if (item.jur === 'uk') {
+        if ((/\beci\b/.test(lowerContent) || lowerContent.includes('form 6') || /\bvvpat\b/.test(lowerContent) || /\bhava\b/.test(lowerContent)) && 
+            !lowerContent.includes('u.s. mechanism') && !lowerContent.includes('u.s. legal concept') && !lowerContent.includes('india')) {
+          leak = 'Possible India/US leak in UK response';
+        }
+      }
+
+      if (isSynthesizer || leak) {
+        failures++;
+      }
+
+      auditResults.push({
+        jur: item.jur,
+        query: item.query,
+        title: res.content.split('\n')[0].replace(/###\s*/, ''),
+        isSynthesizer: isSynthesizer,
+        leak: leak,
+        suggestionsCount: res.suggestions ? res.suggestions.length : 0
+      });
+
+      // Recurse into child suggestions up to depth 2
+      if (item.depth < 2 && res.suggestions) {
+        res.suggestions.forEach(childSugg => {
+          queue.push({ jur: item.jur, query: childSugg, depth: item.depth + 1 });
+        });
+      }
+    }
+
+    const report = {
+      totalTested: auditResults.length,
+      failures: failures,
+      failedItems: auditResults.filter(r => r.isSynthesizer || r.leak),
+      summaryByJur: {
+        india: auditResults.filter(r => r.jur === 'india').length,
+        us: auditResults.filter(r => r.jur === 'us').length,
+        uk: auditResults.filter(r => r.jur === 'uk').length
+      }
+    };
+
+    document.getElementById('results').innerHTML = `<pre id="report">${JSON.stringify(report, null, 2)}</pre>`;
+  </script>
+</body>
+</html>

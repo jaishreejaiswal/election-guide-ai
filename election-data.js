@@ -442,14 +442,51 @@ const ELECTION_DATA = {
     }
   },
 
-  // Common quick prompt suggestions for the AI Assistant
+  // Jurisdiction-specific quick prompt suggestions for the AI Assistant
+  quickPromptsByJurisdiction: {
+    india: [
+      { text: "What ID do I need to vote?", icon: "id-card" },
+      { text: "How do I find my polling booth?", icon: "map-pin" },
+      { text: "What time do polls open and close?", icon: "clock" },
+      { text: "What is an EPIC ID?", icon: "id-card" },
+      { text: "Can I vote without a Voter ID card?", icon: "help-circle" },
+      { text: "How does the EVM and VVPAT process work?", icon: "cpu" },
+      { text: "What are my voter rights at the polling station?", icon: "shield" },
+      { text: "Can I register on Election Day?", icon: "calendar" },
+      { text: "Can I take time off work to vote?", icon: "briefcase" },
+      { text: "Can I carry a mobile phone into the booth?", icon: "phone" }
+    ],
+    us: [
+      { text: "What ID do I need to vote?", icon: "id-card" },
+      { text: "How do I find my polling place?", icon: "map-pin" },
+      { text: "What time do polls open and close?", icon: "clock" },
+      { text: "Can I register on Election Day?", icon: "calendar" },
+      { text: "What is a provisional ballot?", icon: "file-text" },
+      { text: "What are my rights if my name is missing?", icon: "shield" },
+      { text: "How do mail-in ballots work?", icon: "mail" },
+      { text: "Can I take time off work to vote?", icon: "briefcase" },
+      { text: "What should I look for in a candidate manifesto?", icon: "book-open" }
+    ],
+    uk: [
+      { text: "What photo ID do I need to vote?", icon: "id-card" },
+      { text: "How do I find my polling station?", icon: "map-pin" },
+      { text: "What time do UK polls open and close?", icon: "clock" },
+      { text: "What is a Voter Authority Certificate (VAC)?", icon: "file-text" },
+      { text: "Can I register on Election Day in the UK?", icon: "calendar" },
+      { text: "How does postal voting work in the UK?", icon: "mail" },
+      { text: "What are my rights if my name is missing?", icon: "shield" },
+      { text: "Can I take time off work to vote?", icon: "briefcase" }
+    ]
+  },
+
+  // Fallback quick prompts
   quickPrompts: [
     { text: "What ID do I need to vote?", icon: "id-card" },
     { text: "How do I find my polling booth?", icon: "map-pin" },
+    { text: "What time do polls open and close?", icon: "clock" },
+    { text: "What is an EPIC ID?", icon: "id-card" },
     { text: "Can I register on Election Day?", icon: "calendar" },
     { text: "What are my rights if my name is missing?", icon: "shield" },
-    { text: "How do mail-in ballots work?", icon: "mail" },
-    { text: "What should I look for in a candidate manifesto?", icon: "book-open" },
     { text: "Can I take time off work to vote?", icon: "clock" },
     { text: "What is a provisional ballot?", icon: "file-text" }
   ],
